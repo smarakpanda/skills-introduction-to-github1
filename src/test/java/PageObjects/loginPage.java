@@ -10,7 +10,8 @@ public class loginPage {
 
     //private WebDriver driver;
     public loginPage(WebDriver driver){
-        PageFactory.initElements(driver,this);}
+        PageFactory.initElements(driver,this);
+    }
     @FindBy(xpath="//a[contains(text(),'Register')]") public WebElement registerLink;
     @FindBy(id = "gender-male") public WebElement maleRadioButton;
     @FindBy(id = "FirstName") public WebElement firstNameTextField;
