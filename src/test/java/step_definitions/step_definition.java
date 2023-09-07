@@ -89,5 +89,6 @@ public class step_definition {
         TakesScreenshot scrShot = ((TakesScreenshot)driver);
         byte[] screenshot = scrShot.getScreenshotAs(OutputType.BYTES);
         scenario.attach(screenshot, "image/png", scenario.getName());
+        System.out.println("Hello Git");
     }
 }
