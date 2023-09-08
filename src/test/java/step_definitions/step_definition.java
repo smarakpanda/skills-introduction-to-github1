@@ -10,7 +10,11 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.commons.io.FileUtils;
+
+import io.restassured.RestAssured;
+//import io.restassured.http.Method;
+import io.restassured.response.Response;
+//import io.restassured.specification.RequestSpecification;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
@@ -19,12 +23,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 public class step_definition {
     WebDriver driver = initializeEdgeDriver();
     loginPage loginPageObj = new loginPage(driver);
+    int statusCode;
     private final String email = "asdfghjkl112364mvn@gmail.com";
     private final String password = "Test@123";
     @Before(order =1)
@@ -94,4 +97,18 @@ public class step_definition {
         driver.manage().window().maximize();
         return driver;
     }
+    @Given("User sends a get request")
+    public void user_sends_a_get_request() {
+        System.out.println("Hello: Given");
+        Response response = RestAssured.get("https://reqres.in/api/users?page=2");
+        //System.out.println("Peek: "+response.prettyPeek());
+        response.prettyPrint();
+        statusCode =response.getStatusCode();
+    }
+    @Then("user should get a response")
+    public void user_should_get_a_response() {
+        System.out.println("Hello: Then");
+        Assert.assertTrue(statusCode == 200);
+    }
+
 }
