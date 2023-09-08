@@ -1,6 +1,7 @@
 package step_definitions;
 
 import PageObjects.loginPage;
+import gherkin.deps.com.google.gson.*;
 import io.cucumber.java.AfterStep;
 import io.cucumber.java.Before;
 import io.cucumber.java.After;
@@ -10,7 +11,11 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.commons.io.FileUtils;
+
+import io.restassured.RestAssured;
+//import io.restassured.http.Method;
+import io.restassured.response.Response;
+//import io.restassured.specification.RequestSpecification;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
@@ -19,12 +24,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
 public class step_definition {
     WebDriver driver = initializeEdgeDriver();
     loginPage loginPageObj = new loginPage(driver);
+    int statusCode;
     private final String email = "asdfghjkl112364mvn@gmail.com";
     private final String password = "Test@123";
     @Before(order =1)
@@ -94,4 +101,28 @@ public class step_definition {
         driver.manage().window().maximize();
         return driver;
     }
+    @Given("User sends a get request")
+    public void user_sends_a_get_request() {
+        System.out.println("Hello: Given");
+        Response response = RestAssured.get("https://reqres.in/api/users?page=2");
+        String json = response.getBody().asString();
+        System.out.println("Peek: "+json);
+        statusCode =response.getStatusCode();
+        JsonParser jpar = new JsonParser();
+        //JsonElement ele= jpar.parse(json);
+        JsonObject obj = jpar.parse(json).getAsJsonObject();
+        JsonArray userArray = obj.get("data").getAsJsonArray();
+        Map<String,String > map = new HashMap<>();
+        for(int i=0;i < userArray.size();i++){
+            map.put(userArray.get(i).getAsJsonObject().get("first_name").getAsString(),
+                    userArray.get(i).getAsJsonObject().get("email").getAsString());
+        }
+        System.out.println(map);
+    }
+    @Then("user should get a response")
+    public void user_should_get_a_response() {
+        System.out.println("Hello: Then");
+        Assert.assertTrue(statusCode == 200);
+    }
+
 }
