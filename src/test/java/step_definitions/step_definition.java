@@ -1,6 +1,7 @@
 package step_definitions;
 
 import PageObjects.loginPage;
+import gherkin.deps.com.google.gson.*;
 import io.cucumber.java.AfterStep;
 import io.cucumber.java.Before;
 import io.cucumber.java.After;
@@ -24,6 +25,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
 public class step_definition {
     WebDriver driver = initializeEdgeDriver();
     loginPage loginPageObj = new loginPage(driver);
@@ -101,9 +105,19 @@ public class step_definition {
     public void user_sends_a_get_request() {
         System.out.println("Hello: Given");
         Response response = RestAssured.get("https://reqres.in/api/users?page=2");
-        //System.out.println("Peek: "+response.prettyPeek());
-        response.prettyPrint();
+        String json = response.getBody().asString();
+        System.out.println("Peek: "+json);
         statusCode =response.getStatusCode();
+        JsonParser jpar = new JsonParser();
+        //JsonElement ele= jpar.parse(json);
+        JsonObject obj = jpar.parse(json).getAsJsonObject();
+        JsonArray userArray = obj.get("data").getAsJsonArray();
+        Map<String,String > map = new HashMap<>();
+        for(int i=0;i < userArray.size();i++){
+            map.put(userArray.get(i).getAsJsonObject().get("first_name").getAsString(),
+                    userArray.get(i).getAsJsonObject().get("email").getAsString());
+        }
+        System.out.println(map);
     }
     @Then("user should get a response")
     public void user_should_get_a_response() {
